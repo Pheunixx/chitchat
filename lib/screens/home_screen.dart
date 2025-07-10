@@ -1,4 +1,5 @@
 import 'package:chitchat/screens/chat_screen.dart';
+import 'package:chitchat/screens/chat_bot.dart';
 import 'package:chitchat/screens/login_screen.dart';
 import 'package:chitchat/screens/settings_screen.dart';
 import 'package:chitchat/screens/user_screen.dart';
@@ -148,6 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
            IconButton(onPressed: (){
             print('Create Group');
+            Navigator.push(context, MaterialPageRoute(builder: (context) => ChatBotScreen()));
           },
            icon: Icon(Icons.group_add),
            tooltip: 'Create New Group',
