@@ -56,5 +56,50 @@ class DatabaseService {
         .snapshots(); // Returns a stream of QuerySnapshots
   }
 
+  
+
+Future<void> sendMessage({
+  required String chatId,
+  required String senderId,
+  required String message,
+   
+  }) async {
+    final chatDoc =FirebaseFirestore.instance.collection('chats').doc(chatId);
+await chatDoc.collection('messages').add({
+  'text': message,
+  'senderId' :senderId,
+  'timestamp': FieldValue.serverTimestamp(),
+  'deleted': false,
+});
+await chatDoc.update({
+  'lastMessage': message,
+  //'lastMessageTimestamp':FieldValue.serverTimestamp()
+});
+  }
+
+   Stream<QuerySnapshot> getChatMessage(String chatId ) {
+    return FirebaseFirestore.instance.collection('chats').doc(chatId).collection('messages').orderBy('timestamp', descending: false).snapshots();
+   }  
+
+   Future<void> deleteMessage ({
+    required String chatId,
+    required String messageId,
+    }) async {
+      final chatDoc = FirebaseFirestore.instance.collection('chats').doc(chatId);
+  final messageDoc = FirebaseFirestore.instance.collection('chats').doc(chatId).collection('messages').doc(messageId);
+  await messageDoc.update({
+    'text': 'This message was deleted',
+    'deleted': true,
+     'lastMessageDeleted': true,
+    'lastMessage': 'this message was deleted',
+  });
+
+    await chatDoc.update({ 
+      'lastMessage': 'This message was deleted',
+    'lastMessageTimestamp': FieldValue.serverTimestamp(), 
+    });
+  
+   }
+
   }
 

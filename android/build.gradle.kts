@@ -1,7 +1,7 @@
 plugins {
     id("com.google.gms.google-services") version "4.4.3" apply false
-    id("com.android.application") version "8.7.0" apply false     // Android Application plugin
-    id("org.jetbrains.kotlin.android") version "2.0.0" apply false // Kotlin Android plugin (use 2.0.0 for latest compatibility)
+    id("com.android.application") version "8.7.3" apply false     // Android Application plugin
+    id("org.jetbrains.kotlin.android") version "2.1.0" apply false // Kotlin Android plugin (use 2.0.0 for latest compatibility)
     
 }
 

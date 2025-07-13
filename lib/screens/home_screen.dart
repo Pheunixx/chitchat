@@ -32,7 +32,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: TextField(
           decoration: InputDecoration(
             hintText: 'search...',
-            prefixIcon: Icon(Icons.search),
+            hintStyle: TextStyle(
+              color: Colors.white
+            ),
+             prefixIcon: Icon(Icons.search, color:Colors.white ,),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30.0),
             ),contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 3.0)
@@ -60,31 +63,34 @@ class _HomeScreenState extends State<HomeScreen> {
             final chatDocument = snapshot.data!.docs [index];
             final Map<String, dynamic> chatData = chatDocument.data() as Map<String, dynamic>;
             final String chatId = chatDocument.id;
-            final String chatName =chatData ['chatName']  as String ?? 'Unnamed chat';
-            final String lastMessage = chatData ['lastMessage'] as String ?? 'No Message';
+            final String chatName = chatData['chatName']?.toString() ?? 'Unnamed chat';
+            final String lastMessage = chatData['lastMessage']?.toString() ?? 'No Message';
+            final bool lastMessageDeleted = chatData['lastMessageDeleted'] == true;
+            final String messageToShow = lastMessageDeleted ? 'This message was deleted' : lastMessage;
+
             final Timestamp? rawTimestamp = chatData ['lastMessageTimestamp'] as Timestamp?;
             final DateTime lastMessageDateTime = rawTimestamp?.toDate()?? DateTime.now();
 
             return ListTile(
               leading: CircleAvatar(
                 child: Text(chatName.isNotEmpty? chatName[0].toUpperCase() : '?',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white,
                 ),
-            backgroundColor: Theme.of(context).primaryColor,),
-              
+                ),
+            backgroundColor: Colors.deepPurpleAccent),
               title: Text(chatName, 
-              style:TextStyle(fontWeight: FontWeight.bold),
+              style:TextStyle(fontWeight: FontWeight.bold, 
+              color: Colors.white),
               ),
-                subtitle: Text(lastMessage,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                ),
-                trailing: Text(
-                  "${lastMessageDateTime.hour.toString().padLeft(2,'0')}:${lastMessageDateTime.minute.toString().padLeft(2, '0')}",
-                  style: const TextStyle(
-                    fontSize: 12, color: Colors.grey,
-                  ),
-                  ),
+                subtitle: Text(messageToShow,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                   style: TextStyle(fontFamily: 'Tiktok', color: Colors.grey[400]
+                    ),
+                      ),
+
+                  
+                  
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(
                       chatId : chatId,
@@ -138,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("Chats",
         style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,color: Colors.white),
         ),
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.deepPurpleAccent,
         foregroundColor: Colors.white,
 
         actions: [
@@ -169,12 +175,14 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.people),
           label: 'Group'),
           BottomNavigationBarItem(icon: Icon(Icons.settings),
-          label: 'Settings'
+          label: 'Settings',
           ),
+          
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.teal,
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: const Color.fromARGB(255, 0, 2, 10),
+        unselectedItemColor: Colors.white,
+        backgroundColor: Colors.deepPurpleAccent,
         type: BottomNavigationBarType.fixed,
         onTap: (index){
           setState(() {
@@ -182,6 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         },
       ),
+      backgroundColor: Colors.grey[900]
     );
     
     
