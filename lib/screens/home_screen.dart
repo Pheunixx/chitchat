@@ -2,6 +2,7 @@ import 'package:chitchat/screens/chat_screen.dart';
 import 'package:chitchat/screens/chat_bot.dart';
 import 'package:chitchat/screens/login_screen.dart';
 import 'package:chitchat/screens/settings_screen.dart';
+import 'package:chitchat/screens/userList_screen.dart';
 import 'package:chitchat/screens/user_screen.dart';
 import 'package:chitchat/services/database_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -63,7 +64,13 @@ class _HomeScreenState extends State<HomeScreen> {
             final chatDocument = snapshot.data!.docs [index];
             final Map<String, dynamic> chatData = chatDocument.data() as Map<String, dynamic>;
             final String chatId = chatDocument.id;
-            final String chatName = chatData['chatName']?.toString() ?? 'Unnamed chat';
+            final Map<String, dynamic> namesMap = Map<String, dynamic>.from(chatData['participantNames'] ?? {});
+            String chatName = 'Unnamed chat';
+if (namesMap.isNotEmpty && currentUserId != null && namesMap.containsKey(currentUserId)) {
+  chatName = namesMap[currentUserId] ?? 'Unnamed chat';
+}
+
+
             final String lastMessage = chatData['lastMessage']?.toString() ?? 'No Message';
             final bool lastMessageDeleted = chatData['lastMessageDeleted'] == true;
             final String messageToShow = lastMessageDeleted ? 'This message was deleted' : lastMessage;
@@ -134,12 +141,15 @@ class _HomeScreenState extends State<HomeScreen> {
     const UserScreen(),
     const SettingsScreen(),
     ];
+    if (currentUserId != null) {
+    _databaseService.fixChatNamesForUser(currentUserId!);
+  }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //backgroundColor: Colors.white,
+      backgroundColor: Colors.black12,
       appBar: AppBar(
         title: const Text("Chats",
         style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,color: Colors.white),
@@ -149,7 +159,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
         actions: [
         
-           IconButton(onPressed: (){}, 
+           IconButton(onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context) => UserListScreen(currentUserId: currentUserId!,)));
+           }, 
            icon: Icon(Icons.person_add),
            tooltip: 'New message',),
 
@@ -161,6 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
            tooltip: 'Create New Group',
            
            ),
+          
 
         ],
       ),
@@ -172,10 +185,10 @@ class _HomeScreenState extends State<HomeScreen> {
           label: 'Chats'),
           BottomNavigationBarItem(icon: Icon(Icons.call),
           label: 'Calls'),
-          BottomNavigationBarItem(icon: Icon(Icons.people),
-          label: 'Group'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings),
-          label: 'Settings',
+          //BottomNavigationBarItem(icon: Icon(Icons.people),
+          //label: 'Group'),
+          BottomNavigationBarItem(icon: Icon(Icons.logout),
+          label: 'Logout',
           ),
           
         ],
@@ -184,14 +197,45 @@ class _HomeScreenState extends State<HomeScreen> {
         unselectedItemColor: Colors.white,
         backgroundColor: Colors.deepPurpleAccent,
         type: BottomNavigationBarType.fixed,
-        onTap: (index){
+        onTap: (index)  async {
+  if (index == 2) { 
+    final confirm = await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Confirm Logout'),
+        content: Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            child: Text('Cancel'),
+            onPressed: () => Navigator.of(ctx).pop(false),
+          ),
+          TextButton(
+            child: Text('Logout'),
+            onPressed: () => Navigator.of(ctx).pop(true),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await FirebaseAuth.instance.signOut();
+      if (!context.mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => LoginScreen()),
+      );
+    }
+    } else {
+        
           setState(() {
             _selectedIndex = index;
           });
+        }
         },
-      ),
-      backgroundColor: Colors.grey[900]
+      )
+     // backgroundColor: Colors.grey[900]
     );
+
     
     
   }

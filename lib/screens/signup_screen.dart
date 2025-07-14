@@ -197,7 +197,7 @@ Widget build(BuildContext context) {
             style: TextStyle(
               fontSize: 28, // Increased font size for prominence
               fontWeight: FontWeight.bold,
-              color: Colors.blueAccent,
+              color: Colors.deepPurple,
             ),
             textAlign: TextAlign.center, // Center the text
           ),
@@ -254,7 +254,7 @@ Widget build(BuildContext context) {
                   onPressed: _signUp, // Linked to your manual sign-up method
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50), // Full width, decent height
-                    backgroundColor: Colors.blueAccent, // Consistent primary color
+                    backgroundColor: Colors.deepPurple, // Consistent primary color
                     foregroundColor: Colors.white, // Text color
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10), // Rounded corners

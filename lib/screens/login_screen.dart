@@ -1,4 +1,5 @@
 import 'package:chitchat/screens/home_screen.dart';
+import 'package:chitchat/screens/signup_screen.dart';
 import 'package:chitchat/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -169,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text('Login To your ChitChat Account',
-            style: TextStyle(fontSize: 20, color: Colors.blue,fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20, color: Colors.deepPurple,fontWeight: FontWeight.bold),
             ),
             const SizedBox( height: 25,),
             TextField(
@@ -201,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
               :ElevatedButton(onPressed: _Login,
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 50),
-                backgroundColor: Colors.blue,
+                backgroundColor: Colors.deepPurple,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5),
@@ -222,7 +223,11 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             ),
 
-            const SizedBox(height: 20 ,),
+            const SizedBox(height: 2 ,),
+
+          TextButton(onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpScreen()));
+          }, child: Text('New user? Tap to Register')),
 
             const Text('-OR-',
             style: TextStyle( fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 18),

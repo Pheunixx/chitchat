@@ -53,7 +53,7 @@ _scroll.animateTo(_scroll.position.maxScrollExtent, duration: Duration(milliseco
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors. grey[300],
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Row(
@@ -156,7 +156,7 @@ return GestureDetector(
           Text(
             isDeleted ? "This message was deleted" : content,
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black,
               fontStyle: isDeleted ? FontStyle.italic : FontStyle.normal,
             ),
           ),

@@ -8,7 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 class DatabaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-   Future<void> createNewUserDocument (String uid, String email, String username) async  {
+   Future <void> createNewUserDocument (String uid, String email, String username) async  {
     await _firestore.collection('users').doc(uid).set({
       'email': email,
       'username': username,
@@ -100,6 +100,74 @@ await chatDoc.update({
     });
   
    }
+
+  Future<String> getOrCreateChat(String user1, String user2) async {
+  final chatsRef = FirebaseFirestore.instance.collection('chats');
+
+  // Check if a chat already exists between the two users
+  final query = await chatsRef.where('Participants', arrayContains: user1).get();
+
+  for (var doc in query.docs) {
+    final data = doc.data();
+    if ((data['Participants'] as List).contains(user2)) {
+      return doc.id;
+    }
+  }
+
+  // Get usernames
+  final user1Doc = await FirebaseFirestore.instance.collection('users').doc(user1).get();
+  final user2Doc = await FirebaseFirestore.instance.collection('users').doc(user2).get();
+
+  final user1Name = user1Doc.data()?['username'] ?? 'User1';
+  final user2Name = user2Doc.data()?['username'] ?? 'User2';
+
+  // Create the participantNames map
+  final participantNames = {
+    user1: user2Name,
+    user2: user1Name,
+  };
+
+  // Create the new chat
+  final newChat = await chatsRef.add({
+    'Participants': [user1, user2],
+    'participantNames': participantNames,
+    'lastMessage': '',
+    'lastMessageTimestamp': FieldValue.serverTimestamp(),
+  });
+
+  return newChat.id;
+}
+
+
+Future<void> fixChatNamesForUser(String userId) async {
+  final chatsRef = FirebaseFirestore.instance.collection('chats');
+
+  final querySnapshot = await chatsRef
+      .where('Participants', arrayContains: userId)
+      .get();
+
+  for (var doc in querySnapshot.docs) {
+    final data = doc.data();
+
+    // Skip if chatName already exists
+    if (data.containsKey('chatName') && data['chatName'].toString().trim().isNotEmpty) {
+      continue;
+    }
+
+    final participants = List<String>.from(data['Participants']);
+    final otherUserId = participants.firstWhere((id) => id != userId);
+
+    // Get other user's name
+    final userDoc = await FirebaseFirestore.instance.collection('users').doc(otherUserId).get();
+    final otherUsername = userDoc.data()?['username'] ?? 'User';
+
+    // Update chatName
+    await doc.reference.update({
+      'chatName': otherUsername,
+    });
+  }
+}
+
 
   }
 
