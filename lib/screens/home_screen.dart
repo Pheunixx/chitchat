@@ -1,3 +1,4 @@
+import 'package:chitchat/main.dart';
 import 'package:chitchat/screens/chat_screen.dart';
 import 'package:chitchat/screens/chat_bot.dart';
 import 'package:chitchat/screens/login_screen.dart';
@@ -33,10 +34,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: TextField(
           decoration: InputDecoration(
             hintText: 'search...',
-            hintStyle: TextStyle(
-              color: Colors.white
+            hintStyle: TextStyle( fontSize: 15
+              //color: Colors.white
             ),
-             prefixIcon: Icon(Icons.search, color:Colors.white ,),
+             prefixIcon: Icon(Icons.search, ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30.0),
             ),contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 3.0)
@@ -118,7 +119,7 @@ if (namesMap.isNotEmpty && currentUserId != null && namesMap.containsKey(current
        
        
        else {
-       return const Text('No chat yet');
+       return const Text('No messages here yet');
        }
        
  }
@@ -148,28 +149,32 @@ if (namesMap.isNotEmpty && currentUserId != null && namesMap.containsKey(current
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+  
     return Scaffold(
-      backgroundColor: Colors.black12,
+     // backgroundColor: Colors.black12,
       appBar: AppBar(
         title: const Text("Chats",
-        style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,color: Colors.white),
+       style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold, color: Colors.white),
         ),
-        backgroundColor: Colors.deepPurpleAccent,
-        foregroundColor: Colors.white,
-
-        actions: [
-        
+        backgroundColor: Theme.of(context).primaryColor,
+        //foregroundColor: Colors.white,
+ actions: [
+        Switch(value: isDark, 
+        onChanged: (bool value) {
+          MyApp.of(context)?.toggleTheme(value);
+        }),
            IconButton(onPressed: (){
             Navigator.push(context, MaterialPageRoute(builder: (context) => UserListScreen(currentUserId: currentUserId!,)));
            }, 
-           icon: Icon(Icons.person_add),
+           icon: Icon(Icons.person_add), color:Colors.white ,
            tooltip: 'New message',),
 
            IconButton(onPressed: (){
             print('Create Group');
             Navigator.push(context, MaterialPageRoute(builder: (context) => ChatBotScreen()));
           },
-           icon: Icon(Icons.group_add),
+           icon: Icon(Icons.group_add), color: Colors.white,
            tooltip: 'Create New Group',
            
            ),
@@ -195,7 +200,7 @@ if (namesMap.isNotEmpty && currentUserId != null && namesMap.containsKey(current
         currentIndex: _selectedIndex,
         selectedItemColor: const Color.fromARGB(255, 0, 2, 10),
         unselectedItemColor: Colors.white,
-        backgroundColor: Colors.deepPurpleAccent,
+        //backgroundColor: Colors.deepPurpleAccent,
         type: BottomNavigationBarType.fixed,
         onTap: (index)  async {
   if (index == 2) { 
