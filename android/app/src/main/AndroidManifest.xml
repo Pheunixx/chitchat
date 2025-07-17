@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.jay.chitchat">
+  package="com.jay.chitchat"> 
     <application
         android:label="chitchat"
         android:name="${applicationName}"

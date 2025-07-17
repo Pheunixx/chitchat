@@ -168,6 +168,9 @@ Future<void> fixChatNamesForUser(String userId) async {
   }
 }
 
-
+//delete chats
+Future <void> deleteChat (String chatId) async {
+  await FirebaseFirestore.instance.collection('chats').doc(chatId).delete();
+}
   }
 

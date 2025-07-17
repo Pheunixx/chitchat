@@ -9,6 +9,8 @@ import 'package:chitchat/services/database_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -25,115 +27,149 @@ class _HomeScreenState extends State<HomeScreen> {
 
   late final List <Widget> _widgetOptions;
 
+//final deleteChat = await FirebaseFirestore.instance.collection('chats').doc(chatId)
   
  Widget _buildChatListBody() {
-  return Column(
-    children: [
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: TextField(
-          decoration: InputDecoration(
-            hintText: 'search...',
-            hintStyle: TextStyle( fontSize: 15
-              //color: Colors.white
-            ),
-             prefixIcon: Icon(Icons.search, ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30.0),
-            ),contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 3.0)
-          ),
-        ),
-        ),
-        Expanded(child: 
-  StreamBuilder(
-        stream: _databaseService.getUsersChat(currentUserId!),
-       builder: (context, snapshot){
-        if (snapshot.connectionState ==ConnectionState.waiting){
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasError){
-            print('StreamBuilder Error: ${snapshot.error}');
-         return const Center(
-          child: const Text('An error occured: '),
-         );
-       }
-       else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty){
-        return ListView.builder(
-          itemCount: snapshot.data!.docs.length,
-          itemBuilder: (BuildContext context, int index) {
-            final chatDocument = snapshot.data!.docs [index];
-            final Map<String, dynamic> chatData = chatDocument.data() as Map<String, dynamic>;
-            final String chatId = chatDocument.id;
-            final Map<String, dynamic> namesMap = Map<String, dynamic>.from(chatData['participantNames'] ?? {});
-            String chatName = 'Unnamed chat';
-if (namesMap.isNotEmpty && currentUserId != null && namesMap.containsKey(currentUserId)) {
-  chatName = namesMap[currentUserId] ?? 'Unnamed chat';
-}
-
-
-            final String lastMessage = chatData['lastMessage']?.toString() ?? 'No Message';
-            final bool lastMessageDeleted = chatData['lastMessageDeleted'] == true;
-            final String messageToShow = lastMessageDeleted ? 'This message was deleted' : lastMessage;
-
-            final Timestamp? rawTimestamp = chatData ['lastMessageTimestamp'] as Timestamp?;
-            final DateTime lastMessageDateTime = rawTimestamp?.toDate()?? DateTime.now();
-
-            return ListTile(
-              leading: CircleAvatar(
-                child: Text(chatName.isNotEmpty? chatName[0].toUpperCase() : '?',
-                style: TextStyle(color: Colors.white,
-                ),
-                ),
-            backgroundColor: Colors.deepPurpleAccent),
-              title: Text(chatName, 
-              style:TextStyle(fontWeight: FontWeight.bold, 
-              color: Colors.white),
+  return
+  Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: 'search...',
+              hintStyle: TextStyle( fontSize: 15
+                //color: Colors.white
               ),
-                subtitle: Text(messageToShow,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                   style: TextStyle(fontFamily: 'Tiktok', color: Colors.grey[400]
-                    ),
-                      ),
-
-                  
-                  
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(
-                      chatId : chatId,
-                      chatName: chatName,
-
-                    
-                    ),
-                    ),
-                    );
-                    print('Tapped on chat : $chatName (ID: $chatId )');
-                  },
+               prefixIcon: Icon(Icons.search, ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30.0),
+              ),contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 3.0)
+            ),
+          ),
+          ),
+          Expanded(child: 
+    StreamBuilder(
+          stream: _databaseService.getUsersChat(currentUserId!),
+         builder: (context, snapshot){
+          if (snapshot.connectionState ==ConnectionState.waiting){
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError){
+              print('StreamBuilder Error: ${snapshot.error}');
+           return const Center(
+            child: const Text('An error occured: '),
+           );
+         }
+         else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty){
+          return ListView.builder(
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (BuildContext context, int index) {
+              final chatDocument = snapshot.data!.docs [index];
+              final Map<String, dynamic> chatData = chatDocument.data() as Map<String, dynamic>;
+              final String chatId = chatDocument.id;
+              final Map<String, dynamic> namesMap = Map<String, dynamic>.from(chatData['participantNames'] ?? {});
+              String chatName = 'Unnamed chat';
+    if (namesMap.isNotEmpty && currentUserId != null && namesMap.containsKey(currentUserId)) {
+    chatName = namesMap[currentUserId] ?? 'Unnamed chat';
+    }
+    
+    
+              final String lastMessage = chatData['lastMessage']?.toString() ?? 'No Message';
+              final bool lastMessageDeleted = chatData['lastMessageDeleted'] == true;
+              final String messageToShow = lastMessageDeleted ? 'This message was deleted' : lastMessage;
+    
+              final Timestamp? rawTimestamp = chatData ['lastMessageTimestamp'] as Timestamp?;
+              final DateTime lastMessageDateTime = rawTimestamp?.toDate()?? DateTime.now();
+    
+           return  GestureDetector(
+            onLongPress: () {
+            HapticFeedback.lightImpact();
+              showDialog(
+                context: context, 
+                builder: (context) =>AlertDialog(
+                  title: Text("Delete chat"),
+                  content: Text('Are you sure you want to delete this chat?'),
+                  actions: [
+                    TextButton(onPressed: () {
+                      Navigator.pop(context);
+                    }, child: Text("Cancel")),
+                    TextButton(onPressed: () async {
+                     await FirebaseFirestore.instance.
+                     collection('chats').
+                     doc(chatId).delete();
+                     Navigator.pop(context);
+                     setState(() {
+                       
+                     });
+                    }, 
+                    child: Text('delete'),
+                     )
+                  ],
+                )
               );
+            },
+                child: ListTile(
+                  leading: CircleAvatar(
+                    child: Text(chatName.isNotEmpty? chatName[0].toUpperCase() : '?',
+                    style: TextStyle(color: Colors.white,
+                    ),
+                    ),
+                backgroundColor: Colors.deepPurpleAccent),
+                  title: Text(chatName, 
+                  style:TextStyle(fontWeight: FontWeight.bold, 
+                  //color: Colors.white),
+                  )
+                  ),
+                    subtitle: Text(messageToShow,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                       style: TextStyle(fontFamily: 'Tiktok', fontSize: 16 //color: Colors.grey[400]
+                        ),
+                          ),
+                    
+                      
+                      
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(
+                          chatId : chatId,
+                          chatName: chatName,
+                    
+                        
+                        ),
+                        ),
+                        );
+                        print('Tapped on chat : $chatName (ID: $chatId )');
+                      },
+                  ),
+              );
+                
               
-            
-          },
-          );
-       }
-       
-       
-       else {
-       return const Text('No messages here yet');
-       }
-       
- }
- )
-  )
-  ]
+            },
+            );
+         }
+           
+         else {
+         return const Text('No messages here yet');
+         }
+         
+         
+     }
+    )
+    
+          )
+      ]
   );
-          
-       
-       
-       
-
 
  }
+ 
+
+       
+       
+
+
+ 
  @override
   void initState() {
     super.initState();
@@ -145,6 +181,7 @@ if (namesMap.isNotEmpty && currentUserId != null && namesMap.containsKey(current
     if (currentUserId != null) {
     _databaseService.fixChatNamesForUser(currentUserId!);
   }
+  
   }
 
   @override

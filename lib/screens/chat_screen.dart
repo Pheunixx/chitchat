@@ -218,45 +218,35 @@ return
           
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors. grey[300],
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        title: Row(
-          children: [
-             CircleAvatar(
-        backgroundColor: Colors.deepPurpleAccent,
-        child: Text(
-          widget.chatName.isNotEmpty
-              ? widget.chatName[0].toUpperCase()
-              : '?',
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      SizedBox(width: 10),
-            Text(widget.chatName),
+    @override
+Widget build(BuildContext context) {
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final bool isSmallScreen = constraints.maxHeight < 600;
 
-          ],
+      return GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
+          resizeToAvoidBottomInset: true,
+          backgroundColor: Theme.of(context).colorScheme.background,
+          appBar: AppBar(
+            title: const Text('Chat'),
+          ),
+          body: isSmallScreen
+              ? Column(
+                  children: [
+                    Expanded(child: _chatScreenContent()),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(child: _chatScreenContent()),
+                  ],
+                ),
         ),
-        backgroundColor: Colors.grey[200],
-      ),
-      body: LayoutBuilder(builder: (context, constraints){
-        if (constraints.maxHeight < 600) {
-          return Column(
-            children: [_chatScreenContent()],
-          );
-        }else{
-          return Row(
-          children: [Expanded(flex: 3 , child:
-          _chatScreenContent())],
-        );
-        }
-      }),
-    );
-  }
+      );
+    },
+  );
+}
+
 }

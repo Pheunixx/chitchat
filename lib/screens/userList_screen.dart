@@ -37,7 +37,7 @@ import 'package:chitchat/services/database_service.dart';
                   title: Text(userName),
                   onTap: () async {
                     final chatId = await DatabaseService().getOrCreateChat(currentUserId, userId);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(chatId: chatId, chatName: userName
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ChatScreen(chatId: chatId, chatName: userName
                     ),
                     ),
                     );
