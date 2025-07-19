@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:chitchat/screens/home_screen.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 class ChatScreen extends StatefulWidget {
   final String chatId;
   final String chatName;
@@ -18,6 +19,7 @@ final TextEditingController _message = TextEditingController();
 final DatabaseService _databaseService = DatabaseService();
 final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
 final ScrollController _scroll = ScrollController();
+int? _expandedIndex;
 
 @override
   void initState() {
@@ -88,10 +90,12 @@ _scroll.animateTo(_scroll.position.maxScrollExtent, duration: Duration(milliseco
                           final formattedTime = "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
                           final isDeleted = message ['deleted'] == true; 
                          final content = isDeleted ? 'This message was deleted' : message['text'] ?? ''; 
+                         final isExpanded = _expandedIndex == index;
                 
                           
                 return GestureDetector(
                   onLongPress: () {
+                    HapticFeedback.lightImpact();
                     if (isMe && !isDeleted) {
                 showDialog(
                   context: context,
@@ -117,14 +121,25 @@ _scroll.animateTo(_scroll.position.maxScrollExtent, duration: Duration(milliseco
                 );
                     }
                   },
+                  onDoubleTap:() {
+                    setState(() {
+                      _expandedIndex = isExpanded ? null: index;
+
+                    });
+                  },
                   child: Align(
                     alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Container(
+                    
+                    child: AnimatedContainer( 
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
                 margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                padding: const EdgeInsets.all(12),
+                padding:  EdgeInsets.all(isExpanded ? 20: 12),
                 decoration: BoxDecoration(
-                  color: isMe ? Colors.deepPurpleAccent : Colors.grey,
-                  borderRadius: BorderRadius.circular(15),
+                  color: _expandedIndex == index
+        ? (isMe ? Colors.deepPurple : Colors.blueGrey)
+        : (isMe ? Colors.blue[50] : Colors.grey),
+                  borderRadius: BorderRadius.circular(isExpanded? 25 : 15),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
